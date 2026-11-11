@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package securelayer.v1;
+
+option java_multiple_files = true;
+option java_package = "com.securelayer.proto.v1";
+
+import "securelayer/v1/common.proto";
+
+service AuditService {
+    rpc RecordAuditEvent(RecordAuditEventRequest) returns (RecordAuditEventResponse);
+}
+
+message RecordAuditEventRequest {
+    TenantRef tenant = 1;
+    Principal principal = 2;
+    string action = 3;
+    string resource = 4;
+    bytes event_hash_sha256 = 5;
+    bytes ed25519_signature = 6;
+    ProtocolEnvelope envelope = 7;
+    AuditEvent audit_event = 8;
+    Integrity integrity = 9;
+}
+
+message RecordAuditEventResponse {
+    string audit_event_id = 1;
+    ProtocolEnvelope envelope = 2;
+}
+

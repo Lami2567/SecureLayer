@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SecureLayer Access Control</title>
+    <style>
+      :root {
+        --bg-primary: #0f172a;
+        --bg-surface: #1e293b;
+        --bg-surface-alt: #334155;
+        --border-color: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        width: 380px;
+        margin: 0;
+        font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+      }
+      header {
+        padding: 14px 16px;
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .brand svg {
+        width: 24px;
+        height: 24px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+      }
+      .disclaimer-pill {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.2);
+        color: #93c5fd;
+        border: 1px solid rgba(147, 197, 253, 0.3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .notice-bar {
+        background: #172554;
+        border-bottom: 1px solid #1e3a8a;
+        padding: 6px 16px;
+        font-size: 11px;
+        color: #bfdbfe;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      main {
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        max-height: 520px;
+        overflow-y: auto;
+      }
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .card-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--text-secondary);
+        margin: 0 0 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .grid-status {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .status-box {
+        background: var(--bg-primary);
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+      .status-label {
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+      }
+      .status-value {
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 2px;
+        word-break: break-all;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .badge-allow { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+      .badge-deny { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+      .badge-unknown { background: rgba(148, 163, 184, 0.2); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.4); }
+
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-top: 8px;
+      }
+      input {
+        width: 100%;
+        margin-top: 4px;
+        padding: 7px 10px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 12px;
+        font-family: inherit;
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .btn-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      button {
+        flex: 1;
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 6px;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      button:hover {
+        background: var(--accent-hover);
+      }
+      button.secondary {
+        background: var(--bg-surface-alt);
+        color: var(--text-primary);
+      }
+      button.secondary:hover {
+        background: #475569;
+      }
+      button.danger {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+      button.danger:hover {
+        background: rgba(239, 68, 68, 0.35);
+      }
+      .app-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 120px;
+        overflow-y: auto;
+      }
+      .app-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 8px;
+        background: var(--bg-primary);
+        border-radius: 6px;
+        font-size: 11px;
+      }
+      .app-meta {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .app-pattern {
+        font-family: monospace;
+        color: #60a5fa;
+      }
+      .audit-list {
+        max-height: 110px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 11px;
+      }
+      .audit-item {
+        padding: 5px 8px;
+        background: var(--bg-primary);
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .message-box {
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        background: #1e293b;
+        color: #cbd5e1;
+        border: 1px solid #334155;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <svg viewBox="0 0 128 128" fill="none">
+          <rect width="128" height="128" rx="24" fill="#2563eb"/>
+          <path d="M64 18l38 14v28c0 24-14 42-38 52-24-10-38-28-38-52V32l38-14z" fill="#ffffff"/>
+          <path d="M64 30l26 10v21c0 16-9 29-26 38-17-9-26-22-26-38V40l26-10z" fill="#2563eb"/>
+        </svg>
+        <h1>SecureLayer</h1>
+      </div>
+      <span class="disclaimer-pill">Access Control</span>
+    </header>
+
+    <div class="notice-bar">
+      <span>🛡 Application-level policy enforcement (Not a VPN)</span>
+    </div>
+
+    <main>
+      <!-- Current Policy Status -->
+      <section class="card">
+        <div class="card-title">
+          <span>Security Evaluation</span>
+          <span id="badgeDecision" class="badge badge-unknown">UNKNOWN</span>
+        </div>
+        <div class="status-box" style="margin-bottom:8px;">
+          <div class="status-label">Last Evaluated URL & Reason</div>
+          <div id="evalReason" class="status-value" style="font-size:11px;color:#94a3b8;">No protected application evaluated yet</div>
+        </div>
+        <div class="btn-row" style="margin-top:0;">
+          <button id="btnCheckTab">Evaluate Current Tab</button>
+          <button id="btnValidateDevice" class="secondary">Validate Device</button>
+        </div>
+      </section>
+
+      <!-- Device Identity -->
+      <section class="card">
+        <div class="card-title">Device-Bound Identity</div>
+        <div class="grid-status">
+          <div class="status-box">
+            <div class="status-label">Certificate Status</div>
+            <div id="certStatus" class="status-value">NOT_REGISTERED</div>
+          </div>
+          <div class="status-box">
+            <div class="status-label">User Session</div>
+            <div id="userSession" class="status-value">Logged Out</div>
+          </div>
+        </div>
+        <div class="status-box" style="margin-top:8px;">
+          <div class="status-label">Device Identifier (Web Crypto Key)</div>
+          <div id="deviceIdDisplay" class="status-value" style="font-family:monospace;font-size:11px;">Not Registered</div>
+        </div>
+      </section>
+
+      <!-- Authentication & Control Plane -->
+      <section class="card">
+        <div class="card-title">Identity & Control Plane</div>
+        <label for="controlPlaneUrl">Control Plane URL</label>
+        <input id="controlPlaneUrl" placeholder="http://localhost:8080">
+
+        <label for="tenantId">Tenant ID</label>
+        <input id="tenantId" placeholder="tenant-primary">
+
+        <label for="username">Username</label>
+        <input id="username" placeholder="developer@bank.example.com">
+
+        <label for="token">Bearer Token</label>
+        <input id="token" type="password" placeholder="JWT / Access Token">
+
+        <div class="btn-row">
+          <button id="btnLogin">Log In</button>
+          <button id="btnRegisterDevice" class="secondary">Register Device</button>
+          <button id="btnLogout" class="danger">Log Out</button>
+        </div>
+      </section>
+
+      <!-- Protected Applications -->
+      <section class="card">
+        <div class="card-title">
+          <span>Protected Applications</span>
+          <span id="appCount" style="font-size:10px;color:var(--text-muted);">0</span>
+        </div>
+        <div id="appList" class="app-list"></div>
+      </section>
+
+      <!-- Audit Trail -->
+      <section class="card">
+        <div class="card-title">
+          <span>Recent Audit Events</span>
+          <button id="btnClearAudit" style="flex:none;padding:2px 6px;font-size:10px;background:transparent;color:var(--text-muted);border:1px solid var(--border-color);">Clear</button>
+        </div>
+        <div id="auditList" class="audit-list"></div>
+      </section>
+
+      <div id="messageBox" class="message-box"></div>
+    </main>
+
+    <script type="module" src="dist/popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+.git
+.env
+node_modules
+dashboard/.next
+dashboard/node_modules
+browser-extension/dist
+browser-extension/node_modules
+sdk-node/dist
+sdk-node/node_modules
+target
+**/target
+__pycache__
+.venv
+

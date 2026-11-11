@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package securelayer.v1;
+
+option java_multiple_files = true;
+option java_package = "com.securelayer.proto.v1";
+
+import "securelayer/v1/common.proto";
+
+service ControlPlaneService {
+    rpc GetPolicy(GetPolicyRequest) returns (GetPolicyResponse);
+    rpc ValidateCertificate(ValidateCertificateRequest) returns (ValidateCertificateResponse);
+}
+
+message GetPolicyRequest {
+    TenantRef tenant = 1;
+    string policy_name = 2;
+    ProtocolEnvelope envelope = 3;
+}
+
+message GetPolicyResponse {
+    string policy_name = 1;
+    int32 version = 2;
+    bytes policy_document = 3;
+    bytes policy_hash_sha256 = 4;
+    ProtocolEnvelope envelope = 5;
+    Policy policy = 6;
+    Integrity integrity = 7;
+}
+
+message ValidateCertificateRequest {
+    ProtocolEnvelope envelope = 1;
+    TenantRef tenant = 2;
+    string device_identifier = 3;
+    Certificate certificate = 4;
+}
+
+message ValidateCertificateResponse {
+    ProtocolEnvelope envelope = 1;
+    CertificateStatus status = 2;
+    SecurityDecision decision = 3;
+}
+

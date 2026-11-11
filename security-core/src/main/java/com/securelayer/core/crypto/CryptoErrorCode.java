@@ -1,0 +1,14 @@
+package com.securelayer.core.crypto;
+
+public enum CryptoErrorCode {
+    INVALID_KEY,
+    INVALID_NONCE,
+    NONCE_REUSE_DETECTED,
+    TAMPERED_CIPHERTEXT,
+    INVALID_SIGNATURE,
+    INTEGRITY_CHECK_FAILED,
+    EXPIRED_CREDENTIAL,
+    REPLAYED_REQUEST,
+    INVALID_REQUEST,
+    PROVIDER_FAILURE
+}

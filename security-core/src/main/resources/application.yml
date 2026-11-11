@@ -1,0 +1,40 @@
+server:
+  port: ${SECURELAYER_CORE_PORT:8090}
+
+spring:
+  application:
+    name: securelayer-security-core
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:securelayer}
+    username: ${POSTGRES_USER:securelayer}
+    password: ${POSTGRES_PASSWORD:change-me-local}
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER_URI:https://issuer.example.com}
+
+grpc:
+  server:
+    port: ${SECURELAYER_CORE_GRPC_PORT:9090}
+    security:
+      enabled: ${SECURELAYER_GRPC_TLS_ENABLED:false}
+      certificate-chain: ${SECURELAYER_GRPC_CERT_CHAIN:}
+      private-key: ${SECURELAYER_GRPC_PRIVATE_KEY:}
+      trust-cert-collection: ${SECURELAYER_GRPC_TRUST_CERTS:}
+      client-auth: ${SECURELAYER_GRPC_CLIENT_AUTH:REQUIRE}
+
+securelayer:
+  security:
+    oidc-issuer-uri: ${OIDC_ISSUER_URI:https://issuer.example.com}
+    audience: ${OIDC_AUDIENCE:securelayer-api}
+    key-encryption-master-key: ${SECURELAYER_KEY_ENCRYPTION_MASTER_KEY:}

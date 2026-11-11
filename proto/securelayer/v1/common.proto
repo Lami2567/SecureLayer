@@ -1,0 +1,175 @@
+syntax = "proto3";
+
+package securelayer.v1;
+
+option java_multiple_files = true;
+option java_package = "com.securelayer.proto.v1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+enum ProtocolDirection {
+    PROTOCOL_DIRECTION_UNSPECIFIED = 0;
+    CLIENT_TO_SERVER = 1;
+    SERVER_TO_CLIENT = 2;
+    SERVER_TO_SERVER = 3;
+}
+
+enum Role {
+    ROLE_UNSPECIFIED = 0;
+    SUPER_ADMIN = 1;
+    ADMIN = 2;
+    DEVELOPER = 3;
+    SECURITY_OPERATOR = 4;
+    DEVICE = 5;
+}
+
+enum DeviceState {
+    DEVICE_STATE_UNSPECIFIED = 0;
+    PENDING = 1;
+    ACTIVE = 2;
+    SUSPENDED = 3;
+    REVOKED = 4;
+}
+
+enum CertificateStatus {
+    CERTIFICATE_STATUS_UNSPECIFIED = 0;
+    VALID = 1;
+    EXPIRED = 2;
+    REVOKED_CERTIFICATE = 3;
+    NOT_YET_VALID = 4;
+    UNKNOWN_CERTIFICATE = 5;
+}
+
+enum SecurityDecisionType {
+    SECURITY_DECISION_TYPE_UNSPECIFIED = 0;
+    ALLOW = 1;
+    DENY = 2;
+    REQUIRE_MFA = 3;
+    REQUIRE_DEVICE_CERTIFICATE = 4;
+}
+
+message TenantRef {
+    string tenant_id = 1;
+}
+
+message Principal {
+    string subject = 1;
+    repeated string scopes = 2;
+    repeated Role roles = 3;
+    string identity_id = 4;
+}
+
+message ErrorDetail {
+    string code = 1;
+    string message = 2;
+    string correlation_id = 3;
+}
+
+message ProtocolEnvelope {
+    string request_id = 1;
+    google.protobuf.Timestamp timestamp = 2;
+    ProtocolDirection direction = 3;
+    TenantRef tenant = 4;
+    string protocol_version = 5;
+}
+
+message Identity {
+    string identity_id = 1;
+    string username = 2;
+    string email = 3;
+    bool active = 4;
+    repeated Role roles = 5;
+}
+
+message Device {
+    string device_id = 1;
+    string device_identifier = 2;
+    DeviceState state = 3;
+    bool registered = 4;
+}
+
+message Application {
+    string application_id = 1;
+    string client_id = 2;
+    string name = 3;
+    bool approved = 4;
+}
+
+message Policy {
+    string policy_id = 1;
+    string name = 2;
+    int32 version = 3;
+    bytes document_json = 4;
+    bool active = 5;
+    bytes policy_hash_sha256 = 6;
+}
+
+message Authentication {
+    Principal principal = 1;
+    Device device = 2;
+    Application application = 3;
+    Certificate certificate = 4;
+    repeated string scopes = 5;
+}
+
+message Encryption {
+    string algorithm = 1;
+    string key_id = 2;
+    int32 key_version = 3;
+    bytes nonce = 4;
+    bytes associated_data = 5;
+}
+
+message Integrity {
+    string algorithm = 1;
+    bytes message_hash_sha256 = 2;
+    bytes hmac = 3;
+    string key_id = 4;
+    int32 key_version = 5;
+}
+
+message Signature {
+    string algorithm = 1;
+    bytes signature = 2;
+    string key_id = 3;
+    string public_key_sha256 = 4;
+}
+
+message Certificate {
+    string certificate_id = 1;
+    string subject = 2;
+    string serial_number = 3;
+    bytes pem_certificate = 4;
+    bytes fingerprint_sha256 = 5;
+    google.protobuf.Timestamp not_before = 6;
+    google.protobuf.Timestamp not_after = 7;
+    CertificateStatus status = 8;
+}
+
+message AuditEvent {
+    string audit_event_id = 1;
+    Principal principal = 2;
+    string action = 3;
+    string resource = 4;
+    bytes event_hash_sha256 = 5;
+    Signature signature = 6;
+    string outcome = 7;
+    google.protobuf.Timestamp created_at = 8;
+}
+
+message SecurityDecision {
+    SecurityDecisionType decision = 1;
+    bool allowed = 2;
+    string policy_name = 3;
+    int32 policy_version = 4;
+    string reason = 5;
+}
+
+message RequestContext {
+    string resource = 1;
+    string http_method = 2;
+    string ip_address = 3;
+    google.protobuf.Struct attributes = 4;
+}
+

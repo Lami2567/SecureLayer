@@ -1,0 +1,11 @@
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/java
+    out: ../gateway/target/generated-sources/protobuf/java
+  - remote: buf.build/grpc/java
+    out: ../gateway/target/generated-sources/protobuf/grpc-java
+  - remote: buf.build/protocolbuffers/python
+    out: ../sdk-python/src
+  - remote: buf.build/protocolbuffers/js
+    out: ../sdk-node/src/generated
+

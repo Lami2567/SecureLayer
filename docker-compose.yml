@@ -1,0 +1,157 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: securelayer-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-securelayer}
+      POSTGRES_USER: ${POSTGRES_USER:-securelayer}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./infrastructure/postgres/init-dev-data.sql:/docker-entrypoint-initdb.d/init-dev-data.sql:ro
+    networks:
+      - securelayer-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8-alpine
+    container_name: securelayer-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - securelayer-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  security-core:
+    build:
+      context: .
+      dockerfile: security-core/Dockerfile
+    container_name: securelayer-security-core
+    environment:
+      SECURELAYER_ENV: ${SECURELAYER_ENV:-local}
+      SECURELAYER_CORE_PORT: 8090
+      SECURELAYER_CORE_GRPC_PORT: 9090
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-securelayer}
+      POSTGRES_USER: ${POSTGRES_USER:-securelayer}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      OIDC_ISSUER_URI: ${OIDC_ISSUER_URI:-https://issuer.example.com}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-securelayer-api}
+      SECURELAYER_KEY_ENCRYPTION_MASTER_KEY: ${SECURELAYER_KEY_ENCRYPTION_MASTER_KEY:-o1z+9oY4cWzE5YJq9P0M7+t6W9z0/4kK6yZ+8oQ2d1Y=}
+    ports:
+      - "8090:8090"
+      - "9090:9090"
+    networks:
+      - securelayer-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: securelayer-gateway
+    environment:
+      SECURELAYER_ENV: ${SECURELAYER_ENV:-local}
+      SECURELAYER_GATEWAY_PORT: 8080
+      SECURELAYER_CONTROL_PLANE_URL: http://security-core:8090
+      SECURELAYER_CONTROL_PLANE_TOKEN: ${SECURELAYER_CONTROL_PLANE_TOKEN:-}
+      SECURELAYER_TENANT_ID: "00000000-0000-0000-0000-000000000001"
+      SECURELAYER_POLICY_NAME: "banking-policy"
+      SECURELAYER_UPSTREAM_BASE_URL: "http://demo-node-app:3001"
+      SECURELAYER_REQUIRE_REQUEST_INTEGRITY: "true"
+      SECURELAYER_REQUIRE_DEVICE_CERTIFICATE: "false"
+      OIDC_ISSUER_URI: ${OIDC_ISSUER_URI:-https://issuer.example.com}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-securelayer-api}
+      SECURELAYER_TLS_ENABLED: ${SECURELAYER_TLS_ENABLED:-false}
+    ports:
+      - "8080:8080"
+    networks:
+      - securelayer-net
+    depends_on:
+      security-core:
+        condition: service_started
+      demo-node-app:
+        condition: service_started
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    container_name: securelayer-dashboard
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_CORE_API_URL: http://localhost:8090
+      NEXT_PUBLIC_GATEWAY_URL: http://localhost:8080
+    ports:
+      - "3000:3000"
+    networks:
+      - securelayer-net
+    depends_on:
+      security-core:
+        condition: service_started
+
+  demo-node-app:
+    build:
+      context: .
+      dockerfile: demo-node-app/Dockerfile
+    container_name: securelayer-demo-node-app
+    environment:
+      PORT: 3001
+      SECURELAYER_CONTROL_PLANE_URL: http://security-core:8090
+      SECURELAYER_TENANT_ID: "00000000-0000-0000-0000-000000000001"
+      SECURELAYER_CLIENT_ID: "banking-app"
+      MASTER_BANKING_KEY_BASE64: "o1z+9oY4cWzE5YJq9P0M7+t6W9z0/4kK6yZ+8oQ2d1Y="
+    ports:
+      - "3001:3001"
+    networks:
+      - securelayer-net
+
+  demo-python-app:
+    build:
+      context: .
+      dockerfile: demo-python-app/Dockerfile
+    container_name: securelayer-demo-python-app
+    environment:
+      PORT: 3002
+      SECURELAYER_GATEWAY_URL: http://gateway:8080
+      BANKING_API_URL: http://demo-node-app:3001
+      SECURELAYER_TENANT_ID: "00000000-0000-0000-0000-000000000001"
+      MASTER_BANKING_KEY_BASE64: "o1z+9oY4cWzE5YJq9P0M7+t6W9z0/4kK6yZ+8oQ2d1Y="
+    ports:
+      - "3002:3002"
+    networks:
+      - securelayer-net
+    depends_on:
+      gateway:
+        condition: service_started
+      demo-node-app:
+        condition: service_started
+
+networks:
+  securelayer-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

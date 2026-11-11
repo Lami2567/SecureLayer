@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "SecureLayer",
+  "version": "0.1.0",
+  "description": "Application-level SecureLayer access control for protected web applications.",
+  "permissions": ["storage", "notifications", "tabs", "activeTab"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "dist/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "SecureLayer Access Control",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/icon-128.svg"
+    }
+  },
+  "icons": {
+    "128": "icons/icon-128.svg"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["dist/content-script.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
+

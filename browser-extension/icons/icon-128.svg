@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="SecureLayer">
+  <rect width="128" height="128" rx="24" fill="#185abc"/>
+  <path d="M64 18l38 14v28c0 24-14 42-38 52-24-10-38-28-38-52V32l38-14z" fill="#ffffff"/>
+  <path d="M64 30l26 10v21c0 16-9 29-26 38-17-9-26-22-26-38V40l26-10z" fill="#185abc"/>
+  <path d="M54 64l8 8 18-21" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

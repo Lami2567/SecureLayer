@@ -1,0 +1,16 @@
+[project]
+name = "securelayer-sdk"
+version = "0.1.0"
+description = "SecureLayer Python SDK"
+requires-python = ">=3.12"
+dependencies = [
+  "cryptography>=43.0.0",
+  "httpx>=0.27.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/securelayer"]

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <appender name="CONSOLE_STRUCTURED" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} level=%level service=securelayer-gateway correlationId=%X{correlationId} logger=%logger{36} %kvp message="%msg"%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${LOG_LEVEL:INFO}">
+        <appender-ref ref="CONSOLE_STRUCTURED"/>
+    </root>
+</configuration>
+

@@ -1,0 +1,57 @@
+server:
+  port: ${SECURELAYER_GATEWAY_PORT:8080}
+  ssl:
+    enabled: ${SECURELAYER_TLS_ENABLED:false}
+    protocol: TLS
+    enabled-protocols: TLSv1.3
+    key-store: ${TLS_KEYSTORE_PATH:}
+    key-store-password: ${TLS_KEYSTORE_PASSWORD:}
+    key-store-type: PKCS12
+
+spring:
+  application:
+    name: securelayer-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER_URI:https://issuer.example.com}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  health:
+    ssl:
+      enabled: true
+
+securelayer:
+  environment: ${SECURELAYER_ENV:local}
+  security:
+    oidc-issuer-uri: ${OIDC_ISSUER_URI:https://issuer.example.com}
+    audience: ${OIDC_AUDIENCE:securelayer-api}
+  control-plane:
+    base-url: ${SECURELAYER_CONTROL_PLANE_URL:http://localhost:8081}
+    bearer-token: ${SECURELAYER_CONTROL_PLANE_TOKEN:}
+  gateway:
+    enabled: ${SECURELAYER_GATEWAY_ENABLED:true}
+    tenant-id: ${SECURELAYER_TENANT_ID:00000000-0000-0000-0000-000000000000}
+    policy-name: ${SECURELAYER_POLICY_NAME:default}
+    upstream-base-url: ${SECURELAYER_UPSTREAM_BASE_URL:http://localhost:3000}
+    require-request-integrity: ${SECURELAYER_REQUIRE_REQUEST_INTEGRITY:true}
+    require-device-certificate: ${SECURELAYER_REQUIRE_DEVICE_CERTIFICATE:false}
+    request-integrity-header: X-Message-Sha256
+    application-id-header: X-SecureLayer-Client-Id
+    device-identifier-header: X-SecureLayer-Device-Id
+    certificate-header: X-SecureLayer-Client-Certificate
+  audit:
+    enabled: true
+    hash-algorithm: SHA-256
+    signing-algorithm: Ed25519
+

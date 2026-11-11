@@ -1,0 +1,18 @@
+{
+  "name": "securelayer",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "dashboard",
+    "browser-extension",
+    "sdk-node",
+    "demo-node-app"
+  ],
+  "scripts": {
+    "build:dashboard": "npm --workspace @securelayer/dashboard run build",
+    "build:browser-extension": "npm --workspace @securelayer/browser-extension run build",
+    "build:sdk-node": "npm --workspace @securelayer/sdk-node run build",
+    "test:e2e": "node integration/e2e-scenario.mjs"
+  }
+}
+
